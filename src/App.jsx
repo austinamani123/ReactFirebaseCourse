@@ -2,7 +2,7 @@ import React from'react'
 import { Auth } from './components/auth'
 import { db } from './config/firebase'
 import { useState, useEffect } from 'react'
-import { getDocs, addDoc, collection } from 'firebase/firestore'
+import { getDocs, addDoc, deleteDoc, doc, collection } from 'firebase/firestore'
 
 function App() {
 
@@ -46,6 +46,13 @@ function App() {
         }
 
     }
+
+    const deleteMovie = async (id) => {
+        const movieDoc = doc(db, 'movies', id)
+        await deleteDoc(movieDoc)
+
+        getMovieList()
+    }
     
 
     return(
@@ -76,6 +83,8 @@ function App() {
                   <div>
                     <h1 style={{color: movie.receivedAnOscar ? 'green' : 'red'}}> {movie.title} </h1>
                     <p> {movie.releaseDate} </p>
+
+                    <button onClick={() => deleteMovie(movie.id)}>Delete Movie</button>
                   </div>  
                 ))}
             </div>
