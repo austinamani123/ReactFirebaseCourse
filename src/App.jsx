@@ -1,20 +1,28 @@
 import React from'react'
 import { Auth } from './components/auth'
-import { db, auth } from './config/firebase'
+import { db, auth, storage } from './config/firebase'
 import { useState, useEffect } from 'react'
 import { getDocs, addDoc, deleteDoc, updateDoc, doc, collection } from 'firebase/firestore'
+import { ref, uploadBytes } from 'firebase/storage'
 import Movie from './components/movie'
 
 
 function App() {
 
+    //New Movie States
     const [newMovieTitle, setNewMovieTitle] = useState('')
     const [newReleaseDate, setNewReleaseDate] = useState(0)
     const [isNewMovieOscar, setIsNewMovieOscar] = useState(false)
+
     const [movieList, setMovieList] = useState([])
 
+    //Update Title State
     const [updatedTitle, setUpdatedTitle] = useState('')
 
+    //File Upload State
+    const [fileUpload, setFileUpload] = useState(null)
+
+    //Collection Reference
     const moviesCollectionRef = collection(db, 'movies')
 
     const getMovieList = async () => {
@@ -64,6 +72,17 @@ function App() {
     
         getMovieList()
     }
+
+    const uploadFile = async () => {
+        if(!fileUpload) return;
+        const filesFolderRef = ref(storage, `projectFiles/${fileUpload.name}`)
+        try{
+        await uploadBytes(filesFolderRef, fileUpload)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     
 
     return(
@@ -111,6 +130,18 @@ function App() {
                 ))}
             </div>
            
+            <div>
+                      <input 
+                          type="file" 
+                          onChange={(e) => setFileUpload(e.target.files[0]) }
+                          className="border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-300 border-2 rounded-md p-2 m-2"
+                      />
+                      <button 
+                          onClick={uploadFile}
+                          className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-xl w-44 border-2 border-blue-600 hover:border-blue-500 font-bold"
+                          >Upload File</button>
+                </div>
+
         </div>
     )
 }
